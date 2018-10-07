@@ -18,19 +18,27 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	line, isPrefix, err := reader.ReadLine()
 	for err == nil {
-		log.Println("Parsing line:\n", line)
-		previousWord := ""
 		for _, sentence := range tokenizer.Tokenize(string(line)) {
-			log.Println("Parsing sentence:\n", sentence)
-			for _, word := range strings.Split(sentence.Text, " ") {
-				addBigramToProbabilityMap(previousWord, word)
-				previousWord = word
+			trimmed := strings.Trim(sentence.Text, " ")
+			words := strings.Split(trimmed, " ")
+			if len(words) < 3 /* || len(words) > 10*/ {
+				continue
 			}
-			addBigramToProbabilityMap(previousWord, "") //Add probability for ending on word
-			if isPrefix {
-				log.Println("Scentence too long")
-				//TODO Save the day
+			word0 := words[0]
+			word1 := words[1]
+			word2 := words[2]
+			addTrigramToProbabilityMap("", "", word0)
+			addTrigramToProbabilityMap("", word0, word1)
+			for i := 0; i < len(words)-2; i++ {
+				word0 = words[i]
+				word1 = words[i+1]
+				word2 = words[i+2]
+				addTrigramToProbabilityMap(word0, word1, word2)
 			}
+			addTrigramToProbabilityMap(word1, word2, "") //Add probability for ending on word
+		}
+		if isPrefix {
+			//TODO Save the day
 		}
 		line, isPrefix, err = reader.ReadLine()
 	}
