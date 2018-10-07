@@ -32,6 +32,8 @@ func main() {
 }
 
 func addBigramToProbabilityMap(s1, s2 string) {
+	s1 = strings.ToLower(s1)
+	s2 = strings.ToLower(s2)
 	if bigramProbabilityMap[s1] == nil {
 		bigramProbabilityMap[s1] = make(map[string]int)
 	}
