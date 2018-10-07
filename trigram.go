@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -50,7 +51,11 @@ func greedyMostProbableScentence() string {
 	word0 := ""
 	word1 := ""
 	word2, _ := guessNextWord("", "")
-	for ; word2 != ""; word2, _ = guessNextWord(word0, word1) { //TODO handle error
+	var err error
+	for ; word2 != ""; word2, err = guessNextWord(word0, word1) {
+		if err != nil {
+			log.Fatal(err) //TODO handle better?
+		}
 		buffer.WriteString(word2)
 		buffer.WriteString(" ")
 		word0 = word1

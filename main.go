@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"regexp"
 	"log"
 	"os"
 	"strings"
@@ -19,7 +20,7 @@ func main() {
 	line, isPrefix, err := reader.ReadLine()
 	for err == nil {
 		for _, sentence := range tokenizer.Tokenize(string(line)) {
-			trimmed := strings.Trim(sentence.Text, " ")
+			trimmed := trimUnwanted(strings.Trim(sentence.Text, " "))
 			words := strings.Split(trimmed, " ")
 			if len(words) < 3 /* || len(words) > 10*/ {
 				continue
@@ -39,8 +40,17 @@ func main() {
 		}
 		if isPrefix {
 			//TODO Save the day
+			log.Fatal("NOOOO")
 		}
 		line, isPrefix, err = reader.ReadLine()
 	}
 	log.Println(greedyMostProbableScentence())
+}
+
+func trimUnwanted(str string) string {
+	reg, err := regexp.Compile("[^a-zA-Z0-9i_\\-,;:\\.\\såäöÅÄÖ]+")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return reg.ReplaceAllString(str, "")
 }
