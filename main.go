@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"log"
 	"os"
 	"strings"
@@ -27,6 +28,7 @@ func main() {
 		}
 		line, isPrefix, err = reader.ReadLine()
 	}
+	log.Println(greedyMostProbableScentence())
 }
 
 func addBigramToProbabilityMap(s1, s2 string) {
@@ -37,6 +39,7 @@ func addBigramToProbabilityMap(s1, s2 string) {
 }
 
 func guessNextWord(str string) (bestGuess string, probability float64) {
+	bestGuess = ""
 	max := -1
 	sum := 0
 	for word, occurances := range bigramProbabilityMap[str] {
@@ -48,4 +51,13 @@ func guessNextWord(str string) (bestGuess string, probability float64) {
 	}
 	probability = float64(max) / float64(sum)
 	return
+}
+
+func greedyMostProbableScentence() string {
+	var buffer bytes.Buffer
+	for word, _ := guessNextWord(""); word != ""; word, _ = guessNextWord(word) {
+		buffer.WriteString(word)
+		buffer.WriteString(" ")
+	}
+	return buffer.String()
 }
