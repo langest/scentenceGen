@@ -1,4 +1,4 @@
-### Sentence Gen
+# Sentence Gen
 A program for generating sentences
 
 ## How it works
