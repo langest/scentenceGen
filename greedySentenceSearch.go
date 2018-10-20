@@ -13,10 +13,8 @@ import (
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
+
 func greedyMostProbableScentence(trigrams TrigramProbabilityMap) string {
-	r, rr := json.Marshal(trigrams)
-	log.Println(string(r))
-	log.Println(rr)
 	var buffer bytes.Buffer
 	word0 := ""
 	word1 := ""

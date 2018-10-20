@@ -6,11 +6,11 @@ import (
 )
 
 func main() {
-	addKorpus := flag.Bool("add-korpus", false, "If true, parses stdin and saves to json file") //TODO better mesesage
+	file := flag.String("-f", "", "The file where to load and save the probability map")
 
 	flag.Parse()
-	if *addKorpus {
-		log.Println("TODO add korpus")
+	if file != "" {
+		log.Fatal("TODO implement file management")
 		return
 	}
 
