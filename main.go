@@ -1,56 +1,18 @@
 package main
 
 import (
-	"bufio"
-	"regexp"
+	"flag"
 	"log"
-	"os"
-	"strings"
-
-	"gopkg.in/neurosnap/sentences.v1"
-	"gopkg.in/neurosnap/sentences.v1/data"
 )
 
 func main() {
-	b, _ := data.Asset("data/english.json")
-	training, _ := sentences.LoadTraining(b)
-	tokenizer := sentences.NewSentenceTokenizer(training)
+	addKorpus := flag.Bool("add-korpus", false, "If true, parses stdin and saves to json file") //TODO better mesesage
 
-	reader := bufio.NewReader(os.Stdin)
-	line, isPrefix, err := reader.ReadLine()
-	for err == nil {
-		for _, sentence := range tokenizer.Tokenize(string(line)) {
-			trimmed := trimUnwanted(strings.Trim(sentence.Text, " "))
-			words := strings.Split(trimmed, " ")
-			if len(words) < 3 /* || len(words) > 10*/ {
-				continue
-			}
-			word0 := words[0]
-			word1 := words[1]
-			word2 := words[2]
-			addTrigramToProbabilityMap("", "", word0)
-			addTrigramToProbabilityMap("", word0, word1)
-			for i := 0; i < len(words)-2; i++ {
-				word0 = words[i]
-				word1 = words[i+1]
-				word2 = words[i+2]
-				addTrigramToProbabilityMap(word0, word1, word2)
-			}
-			addTrigramToProbabilityMap(word1, word2, "") //Add probability for ending on word
-		}
-		if isPrefix {
-			//TODO Save the day
-			log.Fatal("NOOOO")
-		}
-		line, isPrefix, err = reader.ReadLine()
+	flag.Parse()
+	if *addKorpus {
+		log.Println("TODO add korpus")
+		return
 	}
-	log.Println(greedyMostProbableScentence())
-}
 
-func trimUnwanted(str string) string {
-	reg, err := regexp.Compile("[^a-zA-Z0-9i_\\-,;:\\.\\såäöÅÄÖ]+")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return reg.ReplaceAllString(str, "")
+	log.Println(greedyMostProbableScentence(parseTrigramsFromStdin()))
 }

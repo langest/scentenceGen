@@ -1,66 +1,57 @@
 package main
 
 import (
-	"bytes"
-	"errors"
+	"bufio"
+	"os"
 	"log"
-	"math/rand"
+	"regexp"
 	"strings"
-	"time"
+
+	"gopkg.in/neurosnap/sentences.v1"
+	"gopkg.in/neurosnap/sentences.v1/data"
 )
 
-func init() {
-	rand.Seed(time.Now().UTC().UnixNano())
-}
+func parseTrigramsFromStdin() (ret TrigramProbabilityMap) {
+	ret = make(TrigramProbabilityMap)
+	b, _ := data.Asset("data/english.json")
+	training, _ := sentences.LoadTraining(b)
+	tokenizer := sentences.NewSentenceTokenizer(training)
 
-var (
-	trigramProbabilityMap map[string]map[string]map[string]int = make(map[string]map[string]map[string]int)
-)
-
-func addTrigramToProbabilityMap(s1, s2, s3 string) {
-	s1 = strings.ToLower(s1)
-	s2 = strings.ToLower(s2)
-	s3 = strings.ToLower(s3)
-	if trigramProbabilityMap[s1] == nil {
-		trigramProbabilityMap[s1] = make(map[string]map[string]int)
-	}
-	if trigramProbabilityMap[s1][s2] == nil {
-		trigramProbabilityMap[s1][s2] = make(map[string]int)
-	}
-	trigramProbabilityMap[s1][s2][s3] += 1
-}
-
-func guessNextWord(s1, s2 string) (string, error) {
-	sum := 0
-	for _, occurance := range trigramProbabilityMap[s1][s2] {
-		sum += occurance
-	}
-	r := rand.Intn(sum + 1)
-
-	for word, occurance := range trigramProbabilityMap[s1][s2] {
-		r -= occurance
-		if r <= 0 {
-			return word, nil
+	reader := bufio.NewReader(os.Stdin)
+	line, isPrefix, err := reader.ReadLine()
+	for err == nil {
+		for _, sentence := range tokenizer.Tokenize(string(line)) {
+			trimmed := trimUnwanted(strings.Trim(sentence.Text, " "))
+			words := strings.Split(trimmed, " ")
+			if len(words) < 3 /* || len(words) > 10*/ {
+				continue
+			}
+			word0 := words[0]
+			word1 := words[1]
+			word2 := words[2]
+			addTrigramToProbabilityMap("", "", word0, ret)
+			addTrigramToProbabilityMap("", word0, word1, ret)
+			for i := 0; i < len(words)-2; i++ {
+				word0 = words[i]
+				word1 = words[i+1]
+				word2 = words[i+2]
+				addTrigramToProbabilityMap(word0, word1, word2, ret)
+			}
+			addTrigramToProbabilityMap(word1, word2, "", ret) //Add probability for ending on word
 		}
+		if isPrefix {
+			//TODO Save the day
+			log.Fatal("NOOOO")
+		}
+		line, isPrefix, err = reader.ReadLine()
 	}
-	return "", errors.New("Error, code should not reach this point")
+	return
 }
 
-func greedyMostProbableScentence() string {
-	var buffer bytes.Buffer
-	word0 := ""
-	word1 := ""
-	word2, _ := guessNextWord("", "")
-	var err error
-	for ; word2 != ""; word2, err = guessNextWord(word0, word1) {
-		if err != nil {
-			log.Fatal(err) //TODO handle better?
-		}
-		buffer.WriteString(word2)
-		buffer.WriteString(" ")
-		word0 = word1
-		word1 = word2
+func trimUnwanted(str string) string {
+	reg, err := regexp.Compile("[^a-zA-Z0-9i_\\-,;:\\.\\såäöÅÄÖ]+")
+	if err != nil {
+		log.Fatal(err)
 	}
-	buffer.WriteString(word2)
-	return buffer.String()
+	return reg.ReplaceAllString(str, "")
 }
