@@ -23,7 +23,7 @@ func parseTrigramsFromStdin() (ret *TrigramProbabilityMap) {
 		for _, sentence := range tokenizer.Tokenize(string(line)) {
 			trimmed := trimUnwanted(strings.Trim(sentence.Text, " "))
 			words := strings.Split(trimmed, " ")
-			if len(words) < 1 {
+			if len(words) < 3 {
 				continue
 			}
 			word0 := words[0]
