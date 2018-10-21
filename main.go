@@ -7,13 +7,23 @@ import (
 )
 
 func main() {
-	file := flag.String("-f", "", "The file where to load and save the probability map")
-
+	loadPath := flag.String("f", "", "The file where to load and save the probability map")
+	savePath := flag.String("s", "", "The file where to save the probability map, will terminate the program after saving the map")
 	flag.Parse()
-	if 0 != strings.Compare(*file, "") {
-		log.Fatal("TODO implement file management")
+
+	var trigrams *TrigramProbabilityMap
+		trigrams = parseTrigramsFromStdin()
+	if 0 != strings.Compare(*loadPath, "") {
+		//trigrams = NewTrigramProbabilityMap()
+		trigrams.LoadFromJsonFile(*loadPath)
+	} else {
+		trigrams = parseTrigramsFromStdin()
+	}
+
+	if 0 != strings.Compare(*savePath, "") {
+		trigrams.SaveToJsonFile(*savePath)
 		return
 	}
 
-	log.Println(greedyMostProbableScentence(parseTrigramsFromStdin()))
+	log.Println(greedyMostProbableScentence(trigrams))
 }

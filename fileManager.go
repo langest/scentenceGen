@@ -1,49 +1,23 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
-	"encoding/json"
-	"io"
+	"io/ioutil"
 	"log"
-	"os"
 )
 
-func saveMapToFile(trigrams TrigramProbabilityMap, filename string) (err error) {
-	var json string
-	json, err = json.Marshal(trigrams)
+func readBytesFromFile(path string) (bytes []byte) {
+	var err error
+	bytes, err = ioutil.ReadFile(path)
 	if err != nil {
-		log.Println("Failed to convert trigrams to json object:", err)
-		return
-	}
-	err = writeStringToFile(string(json), "myTestFile.json")
-	if err != nil {
-		log.Println("Failed to write json string to file:", string(json))
+		log.Println("Error:", err)
 	}
 	return
 }
 
-func loadMapFromfile(filename string) *TrigramProbabilityMap {
-	log.Fatal("TODO implement")
-	return NewTrigramProbabilityMap()
-}
-
-func readStringFromFile(path string) (string) {
-	file, err := ioutil.ReadFile(path)
+func writeBytesToFile(bytes []byte, path string) {
+	var err error
+	err = ioutil.WriteFile(path, bytes, 0644)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error:", err)
 	}
-	return string(file)
-}
-
-func writeStringToFile(content string, path string) (err error) {
-	var file *os.File
-	if file, err = os.Create(path); err != nil {
-		log.Println(err)
-		return
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(content)
-	return
 }
