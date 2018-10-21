@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
-	"os"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 
@@ -11,8 +11,8 @@ import (
 	"gopkg.in/neurosnap/sentences.v1/data"
 )
 
-func parseTrigramsFromStdin() (ret TrigramProbabilityMap) {
-	ret = make(TrigramProbabilityMap)
+func parseTrigramsFromStdin() (ret *TrigramProbabilityMap) {
+	ret = NewTrigramProbabilityMap()
 	b, _ := data.Asset("data/english.json")
 	training, _ := sentences.LoadTraining(b)
 	tokenizer := sentences.NewSentenceTokenizer(training)
@@ -23,21 +23,21 @@ func parseTrigramsFromStdin() (ret TrigramProbabilityMap) {
 		for _, sentence := range tokenizer.Tokenize(string(line)) {
 			trimmed := trimUnwanted(strings.Trim(sentence.Text, " "))
 			words := strings.Split(trimmed, " ")
-			if len(words) < 3 /* || len(words) > 10*/ {
+			if len(words) < 1 {
 				continue
 			}
 			word0 := words[0]
 			word1 := words[1]
 			word2 := words[2]
-			addTrigramToProbabilityMap("", "", word0, ret)
-			addTrigramToProbabilityMap("", word0, word1, ret)
+			ret.AddTrigramOccurrence("", "", word0, 1)
+			ret.AddTrigramOccurrence("", word0, word1, 1)
 			for i := 0; i < len(words)-2; i++ {
 				word0 = words[i]
 				word1 = words[i+1]
 				word2 = words[i+2]
-				addTrigramToProbabilityMap(word0, word1, word2, ret)
+				ret.AddTrigramOccurrence(word0, word1, word2, 1)
 			}
-			addTrigramToProbabilityMap(word1, word2, "", ret) //Add probability for ending on word
+			ret.AddTrigramOccurrence(word1, word2, "", 1) //Add probability for ending on word
 		}
 		if isPrefix {
 			//TODO Save the day

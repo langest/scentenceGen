@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"bytes"
-	"encoding/json"
 	"errors"
 	"math/rand"
 	"time"
@@ -14,7 +13,7 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-func greedyMostProbableScentence(trigrams TrigramProbabilityMap) string {
+func greedyMostProbableScentence(trigrams *TrigramProbabilityMap) string {
 	var buffer bytes.Buffer
 	word0 := ""
 	word1 := ""
@@ -33,14 +32,14 @@ func greedyMostProbableScentence(trigrams TrigramProbabilityMap) string {
 	return buffer.String()
 }
 
-func guessNextWord(s1, s2 string, trigrams TrigramProbabilityMap) (string, error) {
+func guessNextWord(s0, s1 string, trigrams *TrigramProbabilityMap) (string, error) {
 	sum := 0
-	for _, occurance := range trigrams[s1][s2] {
+	for _, occurance := range trigrams.Get(s0, s1) {
 		sum += occurance
 	}
 	r := rand.Intn(sum + 1)
 
-	for word, occurance := range trigrams[s1][s2] {
+	for word, occurance := range trigrams.Get(s0, s1) {
 		r -= occurance
 		if r <= 0 {
 			return word, nil
