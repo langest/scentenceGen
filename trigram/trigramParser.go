@@ -1,4 +1,4 @@
-package main
+package trigram
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 	"gopkg.in/neurosnap/sentences.v1/data"
 )
 
-func parseTrigramsFromStdin() (ret *TrigramProbabilityMap) {
+func ParseTrigramsFromStdin() (ret *TrigramProbabilityMap) {
 	ret = NewTrigramProbabilityMap()
 	b, _ := data.Asset("data/english.json")
 	training, _ := sentences.LoadTraining(b)

@@ -1,4 +1,4 @@
-package main
+package trigram
 
 import (
 	"io/ioutil"

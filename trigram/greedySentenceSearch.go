@@ -1,4 +1,4 @@
-package main
+package trigram
 
 import (
 	"log"
@@ -13,7 +13,7 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-func greedyMostProbableScentence(trigrams *TrigramProbabilityMap) string {
+func GreedyMostProbableScentence(trigrams *TrigramProbabilityMap) string {
 	var buffer bytes.Buffer
 	word0 := ""
 	word1 := ""
